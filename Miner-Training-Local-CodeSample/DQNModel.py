@@ -63,8 +63,7 @@ class DQN:
       model.add(Activation('linear'))    
       #adam = optimizers.adam(lr=self.learning_rate)
       sgd = optimizers.SGD(lr=self.learning_rate, decay=1e-6, momentum=0.95)
-      model.compile(optimizer = sgd,
-              loss='mse')
+      model.compile(optimizer=sgd, loss='mse')
       return model
   
     
