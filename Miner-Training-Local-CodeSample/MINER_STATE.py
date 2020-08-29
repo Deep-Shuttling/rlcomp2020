@@ -71,6 +71,12 @@ class MapInfo:
                 return cell["type"]
         return -1  # No obstacle at the cell (x,y)
 
+    def get_obstacle_value(self, x, y): #Get the amount of energy value at cell (x,y)
+        for cell in self.obstacles:
+            if x == cell["posx"] and y == cell["posy"]:
+                return cell["value"]
+        return 0
+
 
 class State:
     STATUS_PLAYING = 0

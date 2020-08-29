@@ -2,6 +2,8 @@ import sys
 import numpy as np
 from GAME_SOCKET_DUMMY import GameSocket    # in testing version, please use GameSocket instead of GAME_SOCKET_DUMMY
 from MINER_STATE import State
+from random import seed
+from random import randint
 
 TreeID = 1
 TrapID = 2
@@ -24,6 +26,7 @@ class MinerEnv:
         self.terminate = False
         
         self.score_pre = self.state.score   # Storing the last score for designing the reward function
+        self.energy_pre = self.state.energy # Storing the last energy for designing the reward function
 
         self.viewer = None
         self.steps_beyond_done = None
@@ -39,8 +42,10 @@ class MinerEnv:
 
     def reset(self):    # start new game
         # Choosing a map in the list
-        mapID = np.random.randint(1, 6)  # Choosing a map ID from 5 maps in Maps folder randomly
-        posID_x = np.random.randint(MAP_MAX_X)  # Choosing a initial position of the DQN agent on X-axes randomly
+        # mapID = np.random.randint(1, 6)  # Choosing a map ID from 5 maps in Maps folder randomly
+        mapID = 1
+        posID_x = np.random.randint(MAP_MAX_X)  # Choosing a initial position of the DQN agent on
+        # X-axes randomly
         posID_y = np.random.randint(MAP_MAX_Y)  # Choosing a initial position of the DQN agent on Y-axes randomly
         # Creating a request for initializing a map, initial position, the initial energy, and the maximum number of steps of the DQN agent
         request = ("map" + str(mapID) + "," + str(posID_x) + "," + str(posID_y) + ",50,100")
@@ -83,20 +88,24 @@ class MinerEnv:
         for i in range(self.state.mapInfo.max_x + 1):
             for j in range(self.state.mapInfo.max_y + 1):
                 if self.state.mapInfo.get_obstacle(i, j) == TreeID:  # Tree
-                    view[i, j] = -TreeID
+                    view[i, j] = -20
                 if self.state.mapInfo.get_obstacle(i, j) == TrapID:  # Trap
-                    view[i, j] = -TrapID
+                    view[i, j] = -10
                 if self.state.mapInfo.get_obstacle(i, j) == SwampID: # Swamp
-                    view[i, j] = -SwampID
+                    view[i, j] = self.state.mapInfo.get_obstacle_value(i, j)
                 if self.state.mapInfo.gold_amount(i, j) > 0:
                     view[i, j] = self.state.mapInfo.gold_amount(i, j)
 
+        print(view)
         DQNState = view.flatten().tolist() #Flattening the map matrix to a vector
         
         # Add position and energy of agent to the DQNState
         DQNState.append(self.state.x)
         DQNState.append(self.state.y)
         DQNState.append(self.state.energy)
+        me = {"playerId": 1, "energy": self.state.energy, "posx": self.state.x, "posy": self.state.y,
+              "lastAction": self.state.lastAction, "score": self.state.score, "status": self.state.status}
+
         #Add position of bots 
         for player in self.state.players:
             if player["playerId"] != self.state.id:
@@ -112,18 +121,23 @@ class MinerEnv:
         # Calculate reward
         reward = 0
         score_action = self.state.score - self.score_pre
+        energy_consume = self.energy_pre - self.state.energy
         self.score_pre = self.state.score
-        if score_action > 0:
-            #If the DQN agent crafts golds, then it should obtain a positive reward (equal score_action)
-            reward += score_action
-            
-        #If the DQN agent crashs into obstacels (Tree, Trap, Swamp), then it should be punished by a negative reward
-        if self.state.mapInfo.get_obstacle(self.state.x, self.state.y) == TreeID:  # Tree
-            reward -= TreeID
-        if self.state.mapInfo.get_obstacle(self.state.x, self.state.y) == TrapID:  # Trap
-            reward -= TrapID
-        if self.state.mapInfo.get_obstacle(self.state.x, self.state.y) == SwampID:  # Swamp
-            reward -= SwampID
+        self.energy_pre = self.state.energy
+        reward = score_action - 0.1 * energy_consume
+
+
+        # if score_action > 0:
+        #     #If the DQN agent crafts golds, then it should obtain a positive reward (equal score_action)
+        #     reward += score_action
+        #
+        # #If the DQN agent crashs into obstacels (Tree, Trap, Swamp), then it should be punished by a negative reward
+        # if self.state.mapInfo.get_obstacle(self.state.x, self.state.y) == TreeID:  # Tree
+        #     reward -= TreeID
+        # if self.state.mapInfo.get_obstacle(self.state.x, self.state.y) == TrapID:  # Trap
+        #     reward -= TrapID
+        # if self.state.mapInfo.get_obstacle(self.state.x, self.state.y) == SwampID:  # Swamp
+        #     reward -= SwampID
 
         # If out of the map, then the DQN agent should be punished by a larger nagative reward.
         if self.state.status == State.STATUS_ELIMINATED_WENT_OUT_MAP:
@@ -169,4 +183,3 @@ class MinerEnv:
         semantics of the environment.
         """
         raise NotImplementedError()
-
