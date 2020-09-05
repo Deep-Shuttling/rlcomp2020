@@ -96,7 +96,7 @@ class MinerEnv:
                 if self.state.mapInfo.gold_amount(i, j) > 0:
                     view[i, j] = self.state.mapInfo.gold_amount(i, j)
 
-        print(view)
+        # print(view)
         DQNState = view.flatten().tolist() #Flattening the map matrix to a vector
         
         # Add position and energy of agent to the DQNState
@@ -124,7 +124,7 @@ class MinerEnv:
         energy_consume = self.energy_pre - self.state.energy
         self.score_pre = self.state.score
         self.energy_pre = self.state.energy
-        reward = score_action - 0.1 * energy_consume
+        reward = score_action - 0.2 * energy_consume
 
 
         # if score_action > 0:

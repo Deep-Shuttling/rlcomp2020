@@ -47,7 +47,7 @@ train = False #The variable is used to indicate that the replay starts, and the 
 for episode_i in range(0, N_EPISODE):
     try:
         # Choosing a map in the list
-        mapID = np.random.randint(1, 6) #Choosing a map ID from 5 maps in Maps folder randomly
+        mapID = 1 #np.random.randint(1, 6) #Choosing a map ID from 5 maps in Maps folder randomly
         posID_x = np.random.randint(MAP_MAX_X) #Choosing a initial position of the DQN agent on X-axes randomly
         posID_y = np.random.randint(MAP_MAX_Y) #Choosing a initial position of the DQN agent on Y-axes randomly
         #Creating a request for initializing a map, initial position, the initial energy, and the maximum number of steps of the DQN agent

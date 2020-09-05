@@ -242,7 +242,8 @@ class DQNAgent(AbstractDQNAgent):
 
     def forward(self, observation):
         # Select an action.
-        state = self.memory.get_recent_state(observation)
+        # state = self.memory.get_recent_state(observation)
+        state = self.memory.get_recent_stateCNN(observation)
         q_values = self.compute_q_values(state)
         if self.training:
             if self.vary_eps:
@@ -275,7 +276,8 @@ class DQNAgent(AbstractDQNAgent):
 
         # Train the network on a single stochastic batch.
         if self.step > self.nb_steps_warmup and self.step % self.train_interval == 0:
-            experiences = self.memory.sample(self.batch_size)
+            # experiences = self.memory.sample(self.batch_size)
+            experiences = self.memory.sampleCNN(self.batch_size)
             assert len(experiences) == self.batch_size
 
             # Start by extracting the necessary parameters (we use a vectorized implementation).

@@ -20,12 +20,12 @@ if len(sys.argv) == 3:
     PORT = int(sys.argv[2])
 
 # load json and create model
-json_file = open('RLModelSample.json', 'r')
+json_file = open('DQNmodel_20200901-1550.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 DQNAgent = model_from_json(loaded_model_json)
 # load weights into new model
-DQNAgent.load_weights("RLModelSample.h5")
+DQNAgent.load_weights("DQNmodel_20200901-1550.h5")
 print("Loaded model from disk")
 status_map = {0: "STATUS_PLAYING", 1: "STATUS_ELIMINATED_WENT_OUT_MAP", 2: "STATUS_ELIMINATED_OUT_OF_ENERGY",
                   3: "STATUS_ELIMINATED_INVALID_ACTION", 4: "STATUS_STOP_EMPTY_GOLD", 5: "STATUS_STOP_END_STEP"}
@@ -37,7 +37,8 @@ try:
     s = minerEnv.get_state()  ##Getting an initial state
     while not minerEnv.check_terminate():
         try:
-            action = np.argmax(DQNAgent.predict(s.reshape(1, len(s))))  # Getting an action from the trained model
+            s = np.transpose(s, [2, 0, 1])
+            action = np.argmax(DQNAgent.predict(s[np.newaxis, :, :, :]))  # Getting an action from the trained model .reshape(1, len(s))
             print("next action = ", action)
             minerEnv.step(str(action))  # Performing the action in order to obtain the new state
             s_next = minerEnv.get_state()  # Getting a new state

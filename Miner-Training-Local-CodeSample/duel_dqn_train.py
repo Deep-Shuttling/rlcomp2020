@@ -34,8 +34,8 @@ MEMORY_SIZE = 100000 #The size of the batch for storing experiences
 SAVE_NETWORK = 100  # After this number of episodes, the DQN model is saved for testing later.
 INITIAL_REPLAY_SIZE = 1000 #The number of experiences are stored in the memory batch before starting replaying
 
-training_steps = 100000
-anneal_steps = 90000
+training_steps = 50000
+anneal_steps = 45000
 # Initialize environment
 ENV_NAME = 'GoldMining'
 env = MinerEnv(HOST, PORT) #Creating a communication environment between the DQN model and the game environment (GAME_SOCKET_DUMMY.py)
@@ -66,7 +66,7 @@ memory = SequentialMemory(limit=MEMORY_SIZE, window_length=1)
 policy = EpsGreedyQPolicy()
 # enable the dueling network
 # you can specify the dueling_type to one of {'avg','max','naive'}
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=100, enable_double_dqn=False,
+dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=100, enable_double_dqn=True,
                enable_dueling_network=False, dueling_type='avg', target_model_update=1e-2,
                policy=policy, vary_eps=True, strategy='linear', anneal_steps=anneal_steps)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])

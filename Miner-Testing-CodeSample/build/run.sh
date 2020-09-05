@@ -1,1 +1,1 @@
-python3 TestingAgent.py $1 $2
+python3 optimalPolicy.py $1 $2
